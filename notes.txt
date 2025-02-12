@@ -1,0 +1,248 @@
+https://www.youtube.com/watch?v=4r6WdaY3SOA&list=PLZlA0Gpn_vH8jbFkBjOuFjhxANC63OmXM&index=2
+
+  // in one terminal run this
+  //  mongod --dbpath ~/data/db
+  //  can then run in GUI mongoDB Compass or, have mongosh running in second terminal
+___________________________________________________________________________________________
+
+2. How the backend works
+
+The backend is everything that happens behind the scenes—it’s not visible to users, but it powers the entire application.
+
+Step 1: Receiving a Request
+When a client (like a web browser) makes a request, it sends a URL to the server. This URL contains almost all the information the server needs to process the request.
+
+https://example.com/path?query=value
+
+• https: (Protocol) – Defines whether the request is encrypted.
+  • HTTP (not encrypted)
+  • HTTPS (encrypted for security)
+• example.com (Host) – The domain name that tells the internet which server to contact.
+• /path (Path) – Specifies which section of code the server should execute to generate a response.
+• ?query=value (Query String) – Provides extra details that alter the response.
+  • Example: YouTube uses the same /search path for all searches, but the query string (?q=video_name) tells the server what to look for.
+
+Step 2: Processing the Request
+Once the server receives the request, it needs to determine what action to perform. This is defined by an HTTP method, such as:
+
+• GET – Retrieve data
+• POST – Send new data
+• PUT – Update existing data
+• DELETE – Remove data
+
+The server combines the path, query string, and HTTP method to determine:
+
+1. Which section of code to execute
+2. What data (if any) is needed to generate a response
+
+Step 3: Generating a Response
+Once the server processes the request, it typically responds with one of the following:
+
+• HTML – A webpage, dynamically generated based on the request
+• JSON – Data that a frontend app can use
+• Error Messages – If something goes wrong
+
+Step 4: Security & Data Storage
+A server acts as a barrier between the public internet and private data.
+
+• Only defined paths are accessible – Secure information, like databases, is hidden.
+• Authentication & authorization – Some paths may require users to log in.
+• Encryption (HTTPS) – Prevents attackers from reading intercepted data.
+
+___________________________________________________________________________________________
+
+3. What is REST?
+Most modern websites use REST (Representational State Transfer) as a standard way for clients (browsers, mobile apps, etc.) to communicate with servers.
+
+At its core, REST follows the CRUD (Create, Read, Update, Delete) model for managing resources.
+
+REST in Action
+Imagine a web service that manages users. The server exposes a resource at:
+
+https://example.com/users
+
+RESTful APIs use HTTP methods to define different actions on this resource:
+
+Action	            Method	          URL	            Description
+Read all users      GET	            /users	    Retrieves a list of users
+Create a user	      POST	          /users	    Adds a new user
+Read one user	      GET	            /users/1	  Retrieves a user with ID 1
+Update a user	      PUT	            /users/1	  Updates user 1
+Delete a user	      DELETE	        /users/1	  Removes user 1
+
+Key REST Principles
+Resource-based URLs – The URL represents what you’re acting on (e.g., /users for users).
+Stateless – Each request is independent; the server doesn’t remember previous requests.
+Consistent HTTP Methods – Actions are defined using standard HTTP verbs.
+Scalability & Simplicity – RESTful APIs are easy to understand and scale.
+
+___________________________________________________________________________________________
+
+4. MVC: A Pattern to Organize Code
+MVC (Model-View-Controller) is a design pattern used to organize code and make it less complex by breaking it into three distinct sections, each with its own responsibility.
+
+How MVC Works
+When a user interacts with a website (e.g., searching for cats), their request is processed through three layers:
+
+1. Controller – Handles Requests
+
+• The controller is the entry point for the request.
+• It determines what needs to happen and coordinates the flow between the model (data) and view (presentation).
+• Example: The controller receives a request to search for cats.
+
+2. Model – Handles Data
+
+• The model interacts with the database and performs data-related logic.
+• The controller asks the model to fetch or update data, but never interacts with the database directly.
+• Example: The controller asks the model to retrieve a list of all cats.
+
+3. View – Handles Presentation
+
+• The view is responsible for displaying the data.
+• It takes data from the controller and dynamically generates HTML for the user.
+• Example: Once the model returns a list of cats, the controller sends it to the view, which renders it into HTML.
+
+4. Controller Sends Response
+
+• The controller takes the rendered HTML from the view and sends it back to the user’s browser.
+
+Key MVC Rules
+✅ Separation of concerns – Each component has a single responsibility:
+
+• Model → Handles data
+• View → Displays data
+• Controller → Manages the flow
+  ✅ No direct interaction between model and view – The controller acts as the middleman.
+  ✅ Easier to maintain and scale – Changes to one part of the code don’t affect the others.
+
+Example: Searching for Cats
+• User searches for "cats" → Request goes to the controller.
+• Controller asks the model for cat data.
+• Model queries the database and returns a list of cats.
+• Controller sends the list to the view.
+• View renders the list into HTML.
+• Controller sends the HTML back to the user's browser.
+
+What Happens on an Error?
+• If the model fails (e.g., "No cats found"), it sends an error to the controller.
+• The controller tells the view to display an error message.
+• The view generates an HTML error page, and the controller sends it to the user.
+
+Why Use MVC?
+✅ Keeps code organized – No messy, mixed logic.
+✅ Scales easily – Great for large applications.
+✅ Improves collaboration – Teams can work on different parts independently.
+
+MVC is a fundamental pattern used in frameworks like Express.js, Laravel, Django, Rails, and more!
+
+___________________________________________________________________________________________
+
+5. Project setup - Node, Express, MongoDB
+
+1. npm init -y
+2. in package.json change index.js to server.js (prefernce not really necessary)
+3. install dependencies 
+     npm i express ejs express-ejs-layouts
+     npm i -D nodemon
+4. back in package.json update the scripts
+5. create server.js file
+
+---------
+app.set('layout', 'layouts/layout');
+commonly used when working with templating engines like EJS, Pug, or Handlebars that support layout files.
+
+What Does It Do?
+• This sets a default layout file that will be used for rendering views.
+• The layout file acts as a template that wraps around the actual content of each page.
+• It allows you to maintain a consistent structure (like headers, footers, and sidebars) across multiple pages.
+
+/views
+  /layouts
+    layout.ejs   <-- This is the main layout template
+  index.ejs      <-- This is the actual page content
+
+How It Works
+• When you call res.render('index'), Express will:
+• Look for index.ejs inside /views
+• Wrap it inside layouts/layout.ejs
+• The layout.ejs file should have a placeholder (<%- body %>) where the page content will be inserted.
+
+Why Use This?
+✅ Keeps code DRY – No need to repeat headers/footers in every file.
+✅ Easier maintenance – Update the layout once, and it applies to all pages.
+✅ Better structure – Views stay clean and focused only on content.
+---------
+
+// this is enough to get our server up and running, will see cannot GET / on localhost:3000 at this point
+const express = require('express');
+const app = express();
+const expressLayouts = require('express-ejs-layouts');
+
+app.set('view engine', 'ejs');
+app.set('views', __dirname + '/views');
+app.set('layout', 'layouts/layout');
+app.use(expressLayouts);
+app.use(express.static('public'));
+app.listen(process.env.PORT || '3000');
+
+---------
+
+Now turning to routes, you may see many people put all the routes into server.js file but for a larger application it becomes hard to manage so we will use MVC to layout or application. So we will put all of our routes, which could also be called controllers, into a routes folder. 
+
+We use routes instead of controllers because inside of node and express most people refer to controllers as routes but they are the same thing.
+
+will then create a models folder so our MVC is now set up. 
+
+first route will be index route everything when we don't have a resource or a model in our URL.
+
+We will start with index.js in routes to create the routes for our index of the application. 
+
+once the route is complete for this and is hooked up to the server (ie export/import)
+const indexRouter = require('./routes/index');
+app.use('/', indexRouter);
+
+we can now integrate our routes with our views. 
+
+in views > layouts > layout.ejs
+note: in vs code if you type ! and enter you will get a base skeleton for html file. in the layouts file, we will create the header and footer and use <%- body %> to insert the rest of the content into the page. 
+
+once this is done, you can create views that have text that would be "body" text. In our case we will use dummy text. Then we are going back into the route file to put the two together. 
+
+router.get('/', (req, res) => {
+  // because we did this app.set('views', __dirname + '/views'); in server.js it knows to look in the /views folder and it simply will grab index.
+  res.render('index');
+});
+
+by hooking it up with a layout file, it will make maintaining easier as if there are changes to the layout we only have to do it in one file. 
+
+--------
+Mongoose for MongoDB
+
+Finally we need to work on getting our model integrated. We will hook up to a local mongodb database
+
+// in one terminal run this
+ mongod --dbpath ~/data/db
+
+ can then run in GUI mongoDB Compass or, have mongosh running in second terminal
+
+ will install mongoose to run with mongoDB
+
+ npm i mongoose
+
+ then in server.js we will add the code for connecting to mongoose. 
+ --------
+
+DotENV
+
+npm i -D dotenv
+
+then create a .env file to use for variables.
+
+once created import them into the server.js file 
+
+--------
+
+Git
+
+Time to add in git, create a gitignore file and make sure .env is in there
+
