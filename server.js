@@ -9,6 +9,7 @@ const expressLayouts = require('express-ejs-layouts');
 
 // reference to our index route
 const indexRouter = require('./routes/index');
+const authorRouter = require('./routes/authors');
 
 // configure express app
 // set our view engine, we will use ejs
@@ -23,6 +24,8 @@ app.set('layout', 'layouts/layout');
 app.use(expressLayouts);
 // where our public files will be - JS, css, images. Public is just common usage for this but can be anything
 app.use(express.static('public'));
+// setting to urlencoded because we are sending the values via URL to our server, we also set a limit, increasing the size of what can be sent to make it easier when we uploade files to the server.
+app.use(express.urlencoded({ limit: '10mb', extended: false }));
 
 const mongoose = require('mongoose');
 
@@ -34,6 +37,7 @@ mongoose
 
 // first root path, then what router we want to handle that route.
 app.use('/', indexRouter);
+app.use('/authors', authorRouter);
 
 // will pull from the environment variable when we deploy. The server will tell us what PORT it is listening to.
 app.listen(process.env.PORT || '3000');

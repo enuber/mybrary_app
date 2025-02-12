@@ -11,8 +11,8 @@
     </header>
 
     <main>
-      <%- body %>
-      <!-- Content from other EJS views will be inserted here -->
+      <%- include('../partials/header.ejs') %> <%-
+      include('../partials/errorMessage.ejs') %> <%- body %>
     </main>
 
     <footer>

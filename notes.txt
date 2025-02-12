@@ -246,3 +246,157 @@ Git
 
 Time to add in git, create a gitignore file and make sure .env is in there
 
+---------
+
+MongoDB Atlas
+
+create a new prtoject and then create a cluster
+
+eriknuber - EXyuwRXUyPazoxHg
+
+connection string
+mongodb+srv://eriknuber:EXyuwRXUyPazoxHg@cluster0.qn0x6.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+
+-------
+
+How I made it live 
+
+used render.com to do a free hosting. Connected via render to github and chose the correct public repo. 
+
+then used MongoDB to create a cluster which will act as the DB. and, used the connection string inside of render.com for the environment variable DATABASE_URL
+
+inside render 
+build command: npm install
+start command: node server.js
+
+https://mybrary-app-mblt.onrender.com/
+
+----------
+
+6. Author's Index/Create/New routes
+
+Add functionality to create, search and view authors in our app. 
+
+each one of our routes should have views inside their own folders. So we created an authors folder and added in an index and new page. 
+
+in the routes > authors labeled each route for what it will do.
+
+this is how MVC works with routes/controllers having one file and then all the views are stored in a folder associated with the given route/controller. 
+
+once boilerplate is done, need to go back to server.js file and add in the new route. 
+
+when doing app.use('/authors', authorRouter); this means our routes inside the controller will be based off of authors/ and authors/new. So even though in the routes we have just '/' it is still being set up so that authors comes first. 
+
+---------------
+
+create header so we can navigate around
+
+will create a partials folder, this will hold small snippets of code that aren't apart of our routes. This will be where all of our template files that aren't related to routes they are just partials we include in our other files. 
+
+the reason to use these partials is it allows you to break out your ejs files into smaller files, and it allows you to import the files multiple times in other files so you don't have to duplicate code. 
+
+With the header.ejs file built, go back into the layout.ejs file and include it.
+<%- include('../partials/header.ejs') %>
+
+---------------
+
+create model for the authors
+
+model folder create author.js
+
+usually it is the singular form of whatever the controller/route is called. 
+
+here we will import mongoose and then create a schema to grab all of the authors. once it's exported with the name of the table and the schema it can be used in other parts of the code. 
+
+we will go back to the routes for author and require it and place it in the new Author route. 
+
+next go to the new.ejs authors view and start creating the view for the page which includes a title and form. The form will be of method POST as we are creating a new author so have to submit materials via POST in order to add the author.
+
+because we will be reusing form inputs in the new author and edit author sections, we will create them in partials. 
+
+the equal sign tells the server to create whatever text you got inside and output it as html
+<input type="text" name="name" value="<%= author ? author.name : '' %>" />
+
+Uses the Correct EJS Syntax (<%= %>)
+<%= %> is used for outputting values inside HTML.
+<% %> is for logic without rendering output.
+<%- %> when you want to render raw HTML inside your template.
+
+<%- include('_form_fields') %>
+✅ This is correct because it injects the contents of _form_fields.ejs directly into the template, preserving HTML.
+
+with this done, when create button is clicked that name will be sent to our create author route. But by default express has no easy way to access those variables so will need to install body parser package. This will make it easier to access the different input elements from our server. 
+
+NOTE: body-parser is built into express now so don't do this. 
+package install: npm i body-parser
+
+then add to server.js, need to require it. and tell express how to use it. 
+
+app.use(express.urlencoded({ limit: '10mb', extended: false }));
+• app.use(...) → This applies middleware to process incoming requests.
+• express.urlencoded(...) → Parses URL-encoded form data (i.e., application/x-www-form-urlencoded).
+• { limit: '10mb' } → Restricts the request body size to 10MB to prevent large payloads from crashing the server.
+• { extended: false } → Determines how to parse URL-encoded data.
+
+Now will go back to the authors route and update the post request to send req.body.name. I also checked first by console logging to see that the data was as expected. 
+
+------
+
+in routes > authors.js POST
+
+in order to create a new author with that req.body.name, we will do somethin similar to what we did in the .get() where we called {author: new Author()}
+
+const author = new Author();
+
+
+res.render('authors/new', { author: new Author() });
+• Renders the new.ejs file inside the views/authors/ directory.
+• Passes an empty author object to the EJS file.
+  • This ensures that the form fields in new.ejs don't break if they try to reference an author.name value.
+
+
+when we do this, we are specifying what we want rather than sending all of req.body because if someone sent in an ID to Author, for example, it could reset the ID of our author and that could cause problems. So better to expressly say what we want to take from the client. 
+
+-----
+
+error message
+
+will create a partial to display the error message if there is one. 
+
+created errorMessage.ejs in partials and then added it to the layouts.ejs to render if there is an error.
+
+<!-- <& &> - won't be outputted to client, will only run on server -->
+<% if (locals.errorMessage != null ) {%> <%= errorMessage || '' %> <%}%>
+
+notice that we had to wrap even the } inside at the end of a <% %>
+
+
+-------
+
+async/await
+
+udpating the authors POST route to be async/await
+
+-------
+
+display authors
+
+back in authors.js route we wil work on the '/' all authors route. 
+
+// we will find all authors without condition which is what {} means. If we had conditions, we would add our "where" conditions. {} will get us all the authors
+const authors = await Author.find({});
+res.render('authors/index', { authors: authors });
+
+after this is done, along with the catch portion of the try/catch, we will turn to the view in authors>index.
+
+-------
+
+hooking up the search form Authors page
+
+back in authors.js route 
+
+adding in searchOptions and then checking to see if a query was made. If so, will be added to the searchOptions that get sent to the request. if not, we will get all authors. 
+
+then adding it in to the res.render() as well so that we can populate the input field with what was searched for. 
+
+-------
