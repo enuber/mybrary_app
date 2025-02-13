@@ -1,1 +1,11 @@
-<div>Middle</div>
+<h2>Recently Added</h2>
+
+<div>
+  <!-- will create the list of all books showing and image -->
+  <% books.forEach(book => { %>
+  <!-- because we made it a virtual property in the model, we can access it the same way -->
+
+  <img height="150" width="100" src="<%= book.coverImagePath %>" />
+  <% }); %>
+  <!-- Added closing tag for the forEach loop -->
+</div>

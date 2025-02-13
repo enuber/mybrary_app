@@ -400,3 +400,129 @@ adding in searchOptions and then checking to see if a query was made. If so, wil
 then adding it in to the res.render() as well so that we can populate the input field with what was searched for. 
 
 -------
+
+___________________________________________________________________________________________
+
+7. Books Index/Create/New Routes 
+
+Focusing now on books, we will start with creating the routes file for this. send some basic info so we know we are on the page
+
+will then make the model for book.js 
+
+after setting up the schema, we will go back to our server.js and hook up the router.
+
+--------
+
+add links into our partials header for the new book pages
+
+--------
+
+creating our _form_fields for books. all the different labels and inputs
+
+--------
+
+so form is now built, need to hook it up to the backend. will go back to book routes to the POST portion
+
+for the image, we aren't adding the cover image name into the book object. We first have to create the cover image file in our file system get the name from that and then save that into our book object. Easiest way to do that is using a library called Multer. Allows us to work with multi-part forms which is what a file form is and also to use file we need to change our form inside of our new page to me of the type - multi-part. 
+
+package added: npm i multer
+
+inside routes > books we will require and set up multer.
+we need to tell multer where the upload is going to be so we want the destination to be some form of upload path inside of our project. We want to put this inside of our public folder, inside of another folder there called like book_cover_names but we don't want it hard coded we want it to come from our book model.
+
+so will open book model and create the variable. Once the variable path is created and exported we go back to the books in route folder and need to import it. We need to first take the variable we created in our book model and use that to create the path that we need but to do so we need the path library from node.js. 
+
+file filter -> allows us to filter what files our server accepts.  arguemnts - the file request, the file itself and a callback which is called when we are done 
+inside the callback -> first is error parameter so we set it to null since we have no error, second will be a boolean that says true if the file is accepted or false if not accepted. All we want to do is accept image files so wwe want to set up a variable 
+const upload = multer({
+  dest: uploadPath,
+  fileFilter: (req, file, callback) => {
+
+    callback(null, imageMimeTypes.includes(file.mimetype))
+  },
+});
+• dest: uploadPath → Files will be stored in the folder uploadPath.
+• fileFilter → Controls which files are accepted.
+  • It checks if the uploaded file’s mimetype exists in imageMimeTypes.
+  • callback(null, true) → Accepts the file.
+  • callback(null, false) → Rejects the file.
+
+-----
+
+setup route to accept files
+
+back to working on router.post for books
+
+router.post('/', upload.single('cover'), async (req, res) => {})
+
+we add in upload.single('cover') -> we take the upload variable we created with multer, tell it we have a single file being uploaded in this form and it has a filename of cover. The variable is whatever you set the name of your input to be. (<input type="file" name="cover" />) So now it tell multer we will be uploading a single file with the name of cover. It will now create that file, upload it onto the server and put it in the correct folder. It will also add a variable into our request called req.file 
+
+-----
+
+with this set up we are now ready to create a book and saving it. Will use a try/catch, will first try to save the book. Will redirect to the books page if saved correctly. it will show the new book based on the id. If there is an error, we want to render the new page and pass it the book variable. The "new" page though has alot of logic inside of it to render. So will remove it to be able to be used in multiple places. renderNewPage()
+
+-----
+
+testing it out... notice that multer created our uploads/bookCovers folder for us. We put in all info and, when clicking create see it goes to the all books page, the cover gets put into bookCovers with a unique hexdecimal name so won't have to worry about cover name overloapping and, it added the book to the book database. 
+
+in checking for error, we see that the book cover gets added to the folder which we don't want. So we need to use fs (filesync) to change the info. 
+
+added in the function removeBookCover()
+
+------
+
+creating the books page where we can view all books
+
+doing similar to what we did for author. However for showing each book we will use the cover. In this case for the src, we need to get the path to the image. 
+
+bookSchema.virtual('coverImagePath').get(function () {
+  if (this.coverImageName != null) {
+    return path.join('/', coverImageBasePath, this.coverImageName);
+  }
+});
+
+What is .virtual()?
+• .virtual() in Mongoose is used to define virtual properties that do not get stored in the database but behave like normal schema fields.
+• These properties are computed dynamically based on existing schema fields.
+
+Breakdown of Your Virtual Property
+1. .virtual('coverImagePath') → Defines a virtual property named coverImagePath.
+2. .get(function() { ... }) → Specifies the getter function that computes its value dynamically.
+3. Inside the function:
+  • It checks if coverImageName exists.
+  • If it does, it constructs a full file path using path.join(), combining:
+    • / (root path)
+    • coverImageBasePath (where images are stored, e.g., "uploads/bookCovers").
+    • this.coverImageName (the actual filename).
+
+Why Use a Virtual Property?
+• The database only stores coverImageName, not the full path.
+• The virtual property computes the full path when needed without bloating the database.
+
+------
+
+Now that the books page is created, we need to show the page. Back in routes > books in the all books route we want to render that page.
+
+router.get('/', async (req, res) => {
+  try {
+    const books = await Book.find({});
+    res.render('books/index', {
+      books: books,
+      searchOptions: req.query,
+    });
+  } catch {
+    res.redirect('/');
+  }
+});
+
+--------
+
+filtering to search
+
+we aren't doing any actual search in our book.find() wihtin the .get()
+
+we need to check if the name is similar, and we also need to check publish dates. We will make a query object inside that .get() method
+
+------
+
+finally working on rendering the home page. 

@@ -10,6 +10,7 @@ const expressLayouts = require('express-ejs-layouts');
 // reference to our index route
 const indexRouter = require('./routes/index');
 const authorRouter = require('./routes/authors');
+const bookRouter = require('./routes/books');
 
 // configure express app
 // set our view engine, we will use ejs
@@ -38,6 +39,7 @@ mongoose
 // first root path, then what router we want to handle that route.
 app.use('/', indexRouter);
 app.use('/authors', authorRouter);
+app.use('/books', bookRouter);
 
 // will pull from the environment variable when we deploy. The server will tell us what PORT it is listening to.
 app.listen(process.env.PORT || '3000');

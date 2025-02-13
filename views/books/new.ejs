@@ -1,0 +1,10 @@
+<h2>New Book</h2>
+// the enctype tells the server that hte form is going to be sending multipart
+data which could include a file.
+<form action="/books" method="POST" enctype="multipart/form-data">
+  <%- include('_form_fields') %>
+  <!-- using an anchor tag rather than a button because buttons are used to
+  interact and anchors link things with forms and links -->
+  <a href="/books">Cancel</a>
+  <button type="submit">Create</button>
+</form>
