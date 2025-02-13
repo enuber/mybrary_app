@@ -526,3 +526,54 @@ we need to check if the name is similar, and we also need to check publish dates
 ------
 
 finally working on rendering the home page. 
+
+___________________________________________________________________________________________
+
+8 File upload setup
+
+Going to use another library to upload our files called FilePond
+
+using the cdn version adding this to layout
+
+<link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" />
+<script defer src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
+
+loaded in plugins as well for resize, encode and preview
+
+will also create our own file to do the fileupload scripting
+<script defer src="javascripts/fileUpload.js"></script>
+
+--------
+
+to use filepond, they have a github page that shows how to use it. for the plugins, the official documentation sows you need ot register them first. 
+
+you have to include class="filepond" in order for the input to get parsed. 
+
+--------
+
+now it is hooked up and we see we can drag files in but it is very wide. We can change this properties built into filepond. In the documentation it is under API > instance > properties. We are looking for aspect ratio. We also want to use the "resize" plugin we added to make sure that the target size is maintained. 
+
+---------
+
+backend of it and the parsing of the file. 
+
+The File encode plugin, encodes a dropped file as a base64 string and stores the string in a hidden input field as a JSON string. It uses a JSON string so it can also add the file size, type, name and metadata.
+
+the "data" is what we are mainly wanting as it is the base64 encoded string of the image file that will go from browser to the user. 
+
+we removed multer and, removed the reference to upload inside of the post request. We also removed the enctype form 
+<form action="/books" method="POST" enctype="multipart/form-data"> which was found in the views > books > new.ejs file. 
+
+----
+
+in order to save our files need to modify the books object in the model. Instead of needing to store a coverImageName, we want to store the cover image itself. So we modified the name of coverImageName to just coverImage, then change the type to Buffer as it will be data representing representing the image. Then added in a coverImageType as we need to know the file extension. 
+
+Inside our routes, we will add in a saveCover function and call it from POST. 
+
+We no longer need the removeBookCover function and, its call from the POST. We also no longer need the filename = line and, can remove the coverImageName in the book object that we create. 
+
+----
+
+last part of this section is to remove all code related to uploading and storing. I will be commenting this out so can see it again in the future.
+
+1. delete uploads folder

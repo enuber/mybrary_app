@@ -1,7 +1,10 @@
 <h2>New Book</h2>
-// the enctype tells the server that hte form is going to be sending multipart
-data which could include a file.
-<form action="/books" method="POST" enctype="multipart/form-data">
+<!-- the enctype tells the server that the form is going to be sending multipart
+data which could include a file. -->
+<!-- <form action="/books" method="POST" enctype="multipart/form-data"> -->
+
+<!-- we refactored above line taking out the enctye because we are using file pond which gives us the image file as a string -->
+<form action="/books" method="POST">
   <%- include('_form_fields') %>
   <!-- using an anchor tag rather than a button because buttons are used to
   interact and anchors link things with forms and links -->

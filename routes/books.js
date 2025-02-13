@@ -3,21 +3,21 @@ const express = require('express');
 // gets router from express so we can create routes
 const router = express.Router();
 // path is apart of node.js and, will allow us to create a path.
-const path = require('path');
+// const path = require('path');
 const fs = require('fs');
 const Book = require('../models/book');
 // use path.join to join two paths.
-const uploadPath = path.join('public', Book.coverImageBasePath);
+// const uploadPath = path.join('public', Book.coverImageBasePath);
 const Author = require('../models/author');
-const multer = require('multer');
+// const multer = require('multer');
 const imageMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
 
-const upload = multer({
-  dest: uploadPath,
-  fileFilter: (req, file, callback) => {
-    callback(null, imageMimeTypes.includes(file.mimetype));
-  },
-});
+// const upload = multer({
+//   dest: uploadPath,
+//   fileFilter: (req, file, callback) => {
+//     callback(null, imageMimeTypes.includes(file.mimetype));
+//   },
+// });
 
 // all Book route
 router.get('/', async (req, res) => {
@@ -55,9 +55,12 @@ router.get('/new', async (req, res) => {
 });
 
 // create authors route
-router.post('/', upload.single('cover'), async (req, res) => {
+// router.post('/', upload.single('cover'), async (req, res) => {
+
+// also refactoring above to this after removing the enctype as we are getting a string.
+router.post('/', async (req, res) => {
   // getting the file name if it exists, this is what happens behind scenes using Multer
-  const fileName = req.file != null ? req.file.filename : null;
+  // const fileName = req.file != null ? req.file.filename : null;
   const book = new Book({
     title: req.body.title,
     author: req.body.author,
@@ -65,18 +68,21 @@ router.post('/', upload.single('cover'), async (req, res) => {
     publishDate: new Date(req.body.publishDate),
     pageCount: req.body.pageCount,
     // if fileName is null we could use that to send an error saying they didn't upload a file
-    coverImageName: fileName,
+    // coverImageName: fileName,
     description: req.body.description,
   });
+  saveCover(book, req.body.cover);
   try {
     const newBook = await book.save();
     // res.redirect(`books/${newBook.id}`);
     res.redirect('books');
-  } catch {
-    if (book.coverImageName != null) {
-      removeBookCover(book.coverImageName);
-    }
+  } catch (error) {
+    // removing because we are changing how we are storing the book cover.
+    // if (book.coverImageName != null) {
+    //   removeBookCover(book.coverImageName);
+    // }
     // passing in the error as true since we had an error
+    console.error('error saving book', error);
     renderNewPage(res, book, true);
   }
 });
@@ -98,11 +104,26 @@ async function renderNewPage(res, book, hasError = false) {
   }
 }
 
+// No longer doing this because we aren't saving the books on the server rather pushing the strings to the DB.
 function removeBookCover(fileName) {
   // using the path we created earlier, and combining it with the file name and, telling it to unlink it so it no longer shows up.
   fs.unlink(path.join(uploadPath, fileName), (err) => {
     if (err) console.err(err);
   });
+}
+
+function saveCover(book, coverEncoded) {
+  if (!coverEncoded) return;
+
+  try {
+    const cover = JSON.parse(coverEncoded);
+    if (cover && imageMimeTypes.includes(cover.type)) {
+      book.coverImage = Buffer.from(cover.data, 'base64');
+      book.coverImageType = cover.type;
+    }
+  } catch (error) {
+    console.error('Error processing cover image:', error);
+  }
 }
 
 module.exports = router;
