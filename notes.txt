@@ -577,3 +577,54 @@ We no longer need the removeBookCover function and, its call from the POST. We a
 last part of this section is to remove all code related to uploading and storing. I will be commenting this out so can see it again in the future.
 
 1. delete uploads folder
+
+___________________________________________________________________________________________
+
+9 Authors Show/Edit/Update/Delete
+
+Finishing all the Author routes now. Once getting the structure of these at the bottom of the routes > authors controller, we will install a library so we can make the put and delete requests. 
+
+Method Override - allows us to take a post form send that to our server with a special parameter that tells us if we are doing a put or delete request and then our server will call the correct router based on that parameter. 
+
+npm i method-override 
+
+will import the library into our server.js file and then tell our app to use it. 
+
+-----------
+
+next updating the authors page in views 
+
+for the delete portion of this we need to use a form because the request is to a .delete() not a .get().
+
+as this delete is something we will have to do all over we will break it out.
+
+With this working will go on to build out the view and edit pages
+
+---------
+
+Will work on the edit page.
+
+This page is similar to the new page. Edit is similar to new, 
+
+--------
+
+will then work on update in the routes
+
+Very similar to the create method. 
+
+---------
+
+and now for delete in routes
+
+while simple to set up as it's very similar to the update, we need to think about constraints because if an author is associated with books and, thus books has an author in it's db, we need to be sure that they can't be removed. Otherwise we have a book that doesn't have an author.
+
+Back in our authors model, we will set up the constraint. mongoose has ways for us to run certain code before/after/during certain actions. 
+
+make sure to double check any data that may rely on other info so you don't delete things that may still be in use.
+
+----------
+
+show authors page. get("/:id"). This needs to be done after the get(/new) because otherwise /new will trigger the /:id
+
+adding new view page for the show of author and then have to update th .get('/:id') route in author controller
+

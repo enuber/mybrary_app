@@ -2,6 +2,7 @@ const express = require('express');
 // gets router from express so we can create routes
 const router = express.Router();
 const Author = require('../models/author');
+const Book = require('../models/book');
 
 // all authors route
 router.get('/', async (req, res) => {
@@ -33,14 +34,76 @@ router.post('/', async (req, res) => {
 
   try {
     const newAuthor = await author.save();
-    // res.redirect(`/authors/${newAuthor.id}`); // Redirect to author details page
-    res.redirect(`authors`);
+    res.redirect(`/authors/${newAuthor.id}`); // Redirect to author details page
   } catch {
     // passing back the different parameters back to the author's page so if a name was already entered it will show back up.
     res.render('authors/new', {
       author: author,
       errorMessage: 'Error creating author',
     });
+  }
+});
+
+// showing our author
+router.get('/:id', async (req, res) => {
+  try {
+    const author = await Author.findById(req.params.id);
+    // we want to find the books by the author, with the author.id and then limit how many we get and we then need it to exec() the find method.
+    const books = await Book.find({ author: author.id }).limit(6).exec();
+    res.render('authors/show', { author: author, booksByAuthor: books });
+  } catch {
+    res.redirect('/');
+  }
+});
+
+// editing our author
+router.get('/:id/edit', async (req, res) => {
+  try {
+    // .findById is a method built into mongoose library that just takes the id
+    const author = await Author.findById(req.params.id);
+    res.render('authors/edit', { author: author });
+  } catch {
+    res.redirect('/authors');
+  }
+});
+
+// update author
+router.put('/:id', async (req, res) => {
+  let author;
+
+  try {
+    author = await Author.findById(req.params.id);
+    author.name = req.body.name;
+    await author.save();
+    res.redirect(`/authors/${author.id}`); // Redirect to author details page
+  } catch {
+    if ((author = null)) {
+      res.redirect('/');
+    } else {
+      // passing back the different parameters back to the author's page so if a name was already entered it will show back up.
+      res.render('authors/edit', {
+        author: author,
+        errorMessage: 'Error updating author',
+      });
+    }
+  }
+});
+
+// delete author
+router.delete('/:id', async (req, res) => {
+  let author;
+
+  try {
+    author = await Author.findById(req.params.id);
+    await author.deleteOne();
+    res.redirect('/authors');
+  } catch (error) {
+    console.log(error);
+    if (author == null) {
+      res.redirect('/');
+    } else {
+      res.redirect(`/authors/${author.id}`);
+    }
   }
 });
 

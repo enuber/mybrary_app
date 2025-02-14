@@ -6,6 +6,7 @@ if (process.env.NODE_ENV !== 'production') {
 const express = require('express');
 const app = express();
 const expressLayouts = require('express-ejs-layouts');
+const methodOverride = require('method-override');
 
 // reference to our index route
 const indexRouter = require('./routes/index');
@@ -23,6 +24,8 @@ app.set('views', __dirname + '/views');
 app.set('layout', 'layouts/layout');
 // tell express we want to use Expres Layouts
 app.use(expressLayouts);
+// hook up method-override, we use _method because it is unlikely to be a name in input on the form. It is going to be sent as if it was an input on the form. This will be where we put the PUT or DELETE in the form
+app.use(methodOverride('_method'));
 // where our public files will be - JS, css, images. Public is just common usage for this but can be anything
 app.use(express.static('public'));
 // setting to urlencoded because we are sending the values via URL to our server, we also set a limit, increasing the size of what can be sent to make it easier when we uploade files to the server.
