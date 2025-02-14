@@ -1,4 +1,4 @@
-<h2>Search Authors</h2>
+<h2 class="page-header">Search Authors</h2>
 <form action="/authors" method="GET">
   <label>Name</label>
   <input type="text" name="name" value="<%= searchOptions.name %>" />
@@ -8,8 +8,10 @@
 <!-- will create the list for each author where we show the names and buttons to view/edit/delete -->
 <% authors.forEach(author => { %>
 <div><%= author.name %></div>
-<a href="/authors/<%= author.id %>">View</a>
-<a href="/authors/<%= author.id %>/edit">Edit</a>
-<!-- doing it this way means that though it is a POST the _method will get used instead and this will end up calling our router delete. This is because we set up _method inside of the server.js file as a method override with the method-override library -->
-<%- include('../partials/deleteForm', { url: `/authors/${author.id}` }) %> <%})
-%>
+<div class="btn-row">
+  <a class="btn btn-primary" href="/authors/<%= author.id %>">View</a>
+  <a class="btn btn-primary" href="/authors/<%= author.id %>/edit">Edit</a>
+  <!-- doing it this way means that though it is a POST the _method will get used instead and this will end up calling our router delete. This is because we set up _method inside of the server.js file as a method override with the method-override library -->
+  <%- include('../partials/deleteForm', { url: `/authors/${author.id}` }) %>
+</div>
+<%}) %>

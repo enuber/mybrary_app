@@ -655,3 +655,7 @@ after PUT we now need a DELETE
 ---------
 
 final thing to do is on the home page to make the images clickable as well. Same for views > authors > show
+
+___________________________________________________________________________________________
+
+11 General CSS Styles
