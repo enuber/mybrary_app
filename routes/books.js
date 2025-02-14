@@ -54,7 +54,7 @@ router.get('/new', async (req, res) => {
   renderNewPage(res, new Book());
 });
 
-// create authors route
+// create book route
 // router.post('/', upload.single('cover'), async (req, res) => {
 
 // also refactoring above to this after removing the enctype as we are getting a string.
@@ -74,8 +74,8 @@ router.post('/', async (req, res) => {
   saveCover(book, req.body.cover);
   try {
     const newBook = await book.save();
-    // res.redirect(`books/${newBook.id}`);
-    res.redirect('books');
+    res.redirect(`books/${newBook.id}`);
+    // res.redirect('books');
   } catch (error) {
     // removing because we are changing how we are storing the book cover.
     // if (book.coverImageName != null) {
@@ -87,21 +87,75 @@ router.post('/', async (req, res) => {
   }
 });
 
+// show book route
+router.get('/:id', async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id).populate('author').exec();
+    res.render('books/show', { book: book });
+  } catch {
+    res.redirect('/');
+  }
+});
+
+// edit  Book route
+router.get('/:id/edit', async (req, res) => {
+  try {
+    // we don't need to populate the author because we only need the id in order to fill inside the edit page
+    const book = await Book.findById(req.params.id);
+    renderEditPage(res, book);
+  } catch {
+    res.redirect('/');
+  }
+});
+
+// update book route
+router.put('/:id', async (req, res) => {
+  let book;
+  try {
+    book = await Book.findById(req.params.id);
+    book.title = req.body.title;
+    book.author = req.body.author;
+    book.publishDate = new Date(req.body.publishDate);
+    book.pageCount = req.body.pageCount;
+    book.description = req.body.description;
+    if (req.body.cover !== null && req.body.cover !== '') {
+      saveCover(book, req.body.cover);
+    }
+    await book.save();
+    // sending to the book show page
+    res.redirect(`/books/${book.id}`);
+  } catch (error) {
+    console.log(error);
+    if (book != null) {
+      renderEditPage(res, book, true);
+    } else {
+      res.redirect('/');
+    }
+  }
+});
+
+// delete book page
+router.delete('/:id', async (req, res) => {
+  let book;
+  try {
+    book = await Book.findById(req.params.id);
+    await book.remove();
+    res.redirect('/books');
+  } catch {
+    if (book !== null) {
+      res.render('books/show', {
+        book: book,
+        errorMessage: 'Could not remove book',
+      });
+    } else {
+      res.redirect('/');
+    }
+  }
+});
+
 // need to pass in the response and the book as sometimes will be rendering a new book from the .get(/new) method and sometimes an existing book like from .post() where we will also be calling it because it errored out. Finally passing in an errorMessage as sometimes will have an error that we will default to false
 async function renderNewPage(res, book, hasError = false) {
-  try {
-    // need to get all the authors since they will be listed in a select menu
-    const authors = await Author.find({});
-    // if we have an error we want to render an error message.So we remove the params from the res.render so we can check if there is an error and pass it in if there is.
-    const params = { authors: authors, book: book };
-    if (hasError) params.errorMessage = 'Error creating book';
-    // creating a new book so that when a user modifies it, and we send back data saying that they incorrectly entered data we can populate the fields they already created.
-    // const book = new Book();
-    // we are sending the new books page all the authors and the books so the can be used their.
-    res.render('books/new', params);
-  } catch {
-    res.redirect('/books');
-  }
+  renderFormPage(res, book, 'new', hasError);
 }
 
 // No longer doing this because we aren't saving the books on the server rather pushing the strings to the DB.
@@ -110,6 +164,32 @@ function removeBookCover(fileName) {
   fs.unlink(path.join(uploadPath, fileName), (err) => {
     if (err) console.err(err);
   });
+}
+
+async function renderEditPage(res, book, hasError = false) {
+  renderFormPage(res, book, 'edit', hasError);
+}
+
+async function renderFormPage(res, book, form, hasError = false) {
+  try {
+    // need to get all the authors since they will be listed in a select menu
+    const authors = await Author.find({});
+    // if we have an error we want to render an error message.So we remove the params from the res.render so we can check if there is an error and pass it in if there is.
+    const params = { authors: authors, book: book };
+    if (hasError) {
+      if (form === 'edit') {
+        params.errorMessage = 'Error Updating Book';
+      } else {
+        params.errorMessage = 'Error creating book';
+      }
+    }
+    // creating a new book so that when a user modifies it, and we send back data saying that they incorrectly entered data we can populate the fields they already created.
+    // const book = new Book();
+    // we are sending the new books page all the authors and the books so the can be used their.
+    res.render(`books/${form}`, params);
+  } catch {
+    res.redirect('/books');
+  }
 }
 
 function saveCover(book, coverEncoded) {
@@ -125,5 +205,4 @@ function saveCover(book, coverEncoded) {
     console.error('Error processing cover image:', error);
   }
 }
-
 module.exports = router;

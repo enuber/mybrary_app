@@ -628,3 +628,30 @@ show authors page. get("/:id"). This needs to be done after the get(/new) becaus
 
 adding new view page for the show of author and then have to update th .get('/:id') route in author controller
 
+___________________________________________________________________________________________
+
+10 Finished Backend - Books
+
+starting in routes > books
+
+inside the /:id route, we need to get both the book and author info for the book as well. Right now if we find by ID, it is going to give us the book and will have an ID for the author not any other author related info. So we use .populate('author') which will popuate the author variable inside our book object with all the author info. 
+
+then we need to create the books show view page. 
+
+------
+
+once show is done, need to create the edit page
+
+will go to routes > books, will copy the new book route and change it from there. 
+
+the renderEditPage is basically same as renderNewPage, so broke out the function in order to not repeat code, and passed in an additional variable to tell it what form it is so will go to correct route.
+
+need a PUT route
+
+-------
+
+after PUT we now need a DELETE
+
+---------
+
+final thing to do is on the home page to make the images clickable as well. Same for views > authors > show

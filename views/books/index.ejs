@@ -25,12 +25,14 @@
 
 <div>
   <% books.forEach(book => { %> <% if (book.coverImagePath) { %>
-  <img
-    height="150"
-    width="100"
-    src="<%= book.coverImagePath %>"
-    alt="Book Cover"
-  />
+  <a href="/books/<%= book.id %>">
+    <img
+      height="150"
+      width="100"
+      src="<%= book.coverImagePath %>"
+      alt="Book Cover"
+    />
+  </a>
   <% } else { %>
   <p>No cover image available</p>
   <% } %> <% }); %>
