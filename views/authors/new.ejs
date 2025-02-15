@@ -1,8 +1,10 @@
 <h2 class="page-header">New Author</h2>
 <form action="/authors" method="POST">
   <%- include('_form_fields') %>
-  <!-- using an anchor tag rather than a button because buttons are used to
+  <div class="form-row form-row-end btn-row">
+    <!-- using an anchor tag rather than a button because buttons are used to
   interact and anchors link things with forms and links -->
-  <a href="/authors">Cancel</a>
-  <button type="submit">Create</button>
+    <a class="btn btn-danger" href="/authors">Cancel</a>
+    <button class="btn btn-primary" type="submit">Create</button>
+  </div>
 </form>
