@@ -28,18 +28,5 @@
     <button class="btn btn-primary" type="submit">Search</button>
   </div>
 </form>
-
-<div>
-  <% books.forEach(book => { %> <% if (book.coverImagePath) { %>
-  <a href="/books/<%= book.id %>">
-    <img
-      height="150"
-      width="100"
-      src="<%= book.coverImagePath %>"
-      alt="Book Cover"
-    />
-  </a>
-  <% } else { %>
-  <p>No cover image available</p>
-  <% } %> <% }); %>
-</div>
+<br />
+<%- include('../partials/bookGrid.ejs', {books:books, large: true})%>
