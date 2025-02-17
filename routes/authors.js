@@ -24,7 +24,7 @@ router.get('/', async (req, res) => {
 
 // new author route
 router.get('/new', (req, res) => {
-  // this doesn't save anything ot the DB. but it does create a new author which we can use to save and delete things inside the DB and it also gives us an object we can use in our ejs file.
+  // this doesn't save anything to the DB. but it does create a new author which we can use to save and delete things inside the DB and it also gives us an object we can use in our ejs file.
   res.render('authors/new', { author: new Author() });
 });
 
